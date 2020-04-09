@@ -10,25 +10,29 @@
 
 module Main where
 
+import Control.Monad.Extra (findM)
 import Control.Monad.IO.Class (liftIO)
 import qualified Data.ByteString.Lazy.Char8 as B
-import Data.List (find)
 import Data.Morpheus (interpreter)
 import Data.Morpheus.Document (importGQLDocumentWithNamespace)
 import Data.Morpheus.Types (GQLRootResolver (..), Undefined (..))
 import Data.Text (Text)
+import Text.Regex.TDFA ((=~))
 import Web.Scotty
 
 importGQLDocumentWithNamespace "schema.graphql"
 
 -- * Library
 
-library :: Applicative m => [Author m]
+library :: Monad m => [Author m]
 library = [robert, kant, michael]
+
+books :: Monad m => [Book m]
+books = [treasure, jekyll, reason, neverending, momo]
 
 -- * Authors
 
-robert :: Applicative m => Author m
+robert :: Monad m => Author m
 robert =
   Author
     { authorId = pure 1,
@@ -36,7 +40,7 @@ robert =
       authorBooks = pure [treasure, jekyll]
     }
 
-kant :: Applicative m => Author m
+kant :: Monad m => Author m
 kant =
   Author
     { authorId = pure 2,
@@ -44,7 +48,7 @@ kant =
       authorBooks = pure [reason]
     }
 
-michael :: Applicative m => Author m
+michael :: Monad m => Author m
 michael =
   Author
     { authorId = pure 3,
@@ -54,7 +58,7 @@ michael =
 
 -- * Books
 
-treasure :: Applicative m => Book m
+treasure :: Monad m => Book m
 treasure =
   Book
     { bookId = pure 1,
@@ -62,7 +66,7 @@ treasure =
       bookAuthor = pure robert
     }
 
-jekyll :: Applicative m => Book m
+jekyll :: Monad m => Book m
 jekyll =
   Book
     { bookId = pure 2,
@@ -70,7 +74,7 @@ jekyll =
       bookAuthor = pure robert
     }
 
-reason :: Applicative m => Book m
+reason :: Monad m => Book m
 reason =
   Book
     { bookId = pure 3,
@@ -78,7 +82,7 @@ reason =
       bookAuthor = pure kant
     }
 
-neverending :: Applicative m => Book m
+neverending :: Monad m => Book m
 neverending =
   Book
     { bookId = pure 4,
@@ -86,7 +90,7 @@ neverending =
       bookAuthor = pure michael
     }
 
-momo :: Applicative m => Book m
+momo :: Monad m => Book m
 momo =
   Book
     { bookId = pure 5,
@@ -111,13 +115,11 @@ rootResolver =
     }
   where
     queryAuthor QueryAuthorArgs {queryAuthorArgsName} =
-      pure $ Just robert -- TODO: use find
-    queryAuthors =
-      pure library
+      findM (\Author {authorName} -> (=~ queryAuthorArgsName) <$> authorName) library
+    queryAuthors = pure library
     queryBook QueryBookArgs {queryBookArgsTitle} =
-      pure $ Just treasure -- TODO: use find
-    queryBooks =
-      pure [treasure, jekyll, reason, neverending, momo]
+      findM (\Book {bookTitle} -> (=~ queryBookArgsTitle) <$> bookTitle) books
+    queryBooks = pure books
 
 api :: B.ByteString -> IO B.ByteString
 api = interpreter rootResolver
