@@ -43,7 +43,13 @@ michael =
 rootResolver :: GQLRootResolver IO () Query Undefined Undefined
 rootResolver =
   GQLRootResolver
-    { queryResolver = Query {queryAuthor, queryAuthors, queryBook, queryBooks},
+    { queryResolver =
+        Query
+          { queryAuthor,
+            queryAuthors,
+            queryBook,
+            queryBooks
+          },
       mutationResolver = Undefined,
       subscriptionResolver = Undefined
     }

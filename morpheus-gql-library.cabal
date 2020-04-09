@@ -1,17 +1,15 @@
 cabal-version:      >=1.10
 name:               morpheus-gql-library
 version:            0.1.0.0
-
--- synopsis:
--- description:
--- bug-reports:
--- license:
+synopsis:           Example of a GraphQL library app made with Morpheus
+description:        Example of a GraphQL library app made with Morpheus.
+bug-reports:        https://github.com/kutyel/morpheus-gql-library/issues
+license:            Apache-2.0
 license-file:       LICENSE
 author:             Flavio Corpa
 maintainer:         flavio.corpa@47deg.com
-
--- copyright:
--- category:
+copyright:          Copyright © 2019-2020 <http://47deg.com 47 Degrees>
+category:           Web
 build-type:         Simple
 extra-source-files:
   CHANGELOG.md
@@ -23,6 +21,7 @@ executable gql-library
       base              >=4.13 && <4.14
     , bytestring
     , morpheus-graphql
-    , text
     , scotty
+    , text
+
   default-language: Haskell2010
